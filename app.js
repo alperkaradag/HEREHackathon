@@ -33,7 +33,7 @@ function getRouteTime(StartLocation, FinishLocation, DepartureTime){
         //console.log(parsedBody);
 
         parseString(parsedBody, function (err, result) {
-            console.log(result.);
+            console.log(result["rtcr:CalculateRoute"].Response[0].Route[0].Summary[0].Text[0]);
         });
 
 
