@@ -1,6 +1,3 @@
-# HEREHackathon
+node.js version = 8.11.3
 
-
-
-This is a app for estimating departure time to
-catch a flight or travel
+For example: http://localhost:3000/?url=http://cm-testsite.obss.com.tr/
