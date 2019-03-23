@@ -14,9 +14,23 @@ var HereAppCode = "klJPvYxF8S0EbZtwvh5IOQ";
 
 app.use(urlencodedParser);
 
-const request = require("request-promise");
+const request = require("request");
 
-function getRouteTime(StartLocation, FinishLocation, DepartureTime){
+function doRequest(url) {
+    return new Promise(function (resolve, reject) {
+    request(url, function (error, res, body) {
+        if (!error && res.statusCode == 200) {
+        resolve(body);
+        } else {
+        reject(error);
+        }
+    });
+    });
+}
+
+async function getRouteTime(StartLocation, FinishLocation, DepartureTime){
+    StartLocation = "geo!52.5,13.4";
+    FinishLocation = "geo!52.5,13.45"; 
     var query = {};
     query.uri = "https://route.api.here.com/routing/7.2/calculateroute.xml"
     query.app_id = HereAppId;
@@ -24,38 +38,22 @@ function getRouteTime(StartLocation, FinishLocation, DepartureTime){
     query.waypoint0 = StartLocation;
     query.waypoint1 = FinishLocation;
     query.mode = "fastest;car;traffic:enabled";
-    query.departure = DepartureTime;
+    //TODO: departure time
+    query.departure = "now";
 
 
-    query = "https://route.api.here.com/routing/7.2/calculateroute.xml?app_id=XHKs8GRGYR0UbHLwZXM4&app_code=klJPvYxF8S0EbZtwvh5IOQ&waypoint0=geo!52.5,13.4&waypoint1=geo!52.5,13.45&mode=fastest;car;traffic:disabled";
-    request(query)
-    .then(function (parsedBody) {
-        //console.log(parsedBody);
+    query = "https://route.api.here.com/routing/7.2/calculateroute.json?app_id="+query.app_id+"&app_code="+query.app_code+"&waypoint0="+query.waypoint0+"&waypoint1="+query.waypoint1+"&mode="+query.mode+"&departure="+query.departure;
+    var parsedBody = await doRequest(query);
+    parsedBody = JSON.parse(parsedBody);
 
-        parseString(parsedBody, function (err, result) {
-            console.log(result["rtcr:CalculateRoute"].Response[0].Route[0].Summary[0].Text[0]);
-        });
-
-
-        return parsedBody;
-    })
-    .catch(function (err) {
-        console.log(err);
-    });
-
-
-    // ?app_id={YOUR_APP_ID}
-    // &app_code={YOUR_APP_CODE}
-    // &waypoint0=geo!52.5,13.4
-    // &waypoint1=geo!52.5,13.45
-    // &mode=fastest;car;traffic:disabled
-
-
+    return parsedBody.response.route[0].summary.text;
 
 }
 
 app.get("/",async function(req,res){
-    res.send(getRouteTime("geo!52.5,13.4","geo!52.5,13.45","2018-07-04T17:00:00+02"));
+    var asd = await getRouteTime("geo!52.5,13.4","geo!52.5,13.45","2018-07-04T17:00:00+02");
+    //console.log(result);
+    res.send(asd);
 
     // var	FlightDate = req.params.flightdate;
     // var FlightNumber = req.params.flightnumber;
